@@ -1,0 +1,193 @@
+<main class="page-wrap">
+  <div class="page-header">
+    <h1>NgRx İleri Kalıplar</h1>
+    <p class="subtitle">createFeature · Composed Selectors · ComponentStore · İleri Effects</p>
+  </div>
+
+  <!-- ══ MID ══════════════════════════════════════════════════════════════ -->
+  <div class="level-header level-mid">
+    <span class="level-badge">Mid</span>
+    <span>createFeature — boilerplate azaltma</span>
+  </div>
+
+  <!-- createFeature karşılaştırması -->
+  <section class="demo-card">
+    <h2 class="section-title">createFeature() — Otomatik Selector Üretimi</h2>
+    <p class="section-desc">
+      Eski yolda her state alanı için ayrı <code>createSelector</code> yazmak gerekiyordu.
+      <code>createFeature</code> bunları otomatik üretir.
+    </p>
+    <div class="compare-code-grid">
+      <div>
+        <div class="compare-label danger-label">Eski Yol — Boilerplate</div>
+        <pre class="code-snippet" [textContent]="snippetOldWay"></pre>
+      </div>
+      <div>
+        <div class="compare-label success-label">Yeni Yol — createFeature</div>
+        <pre class="code-snippet" [textContent]="snippetCreateFeature"></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- createFeature canlı demo -->
+  <section class="demo-card">
+    <h2 class="section-title">createFeature Canlı Demo — Users Store</h2>
+    <p class="section-desc">
+      <code>usersFeature.selectUsers</code>, <code>selectLoading</code>, <code>selectError</code>
+      kullanılıyor — hiç manuel <code>createSelector</code> yazmadan.
+    </p>
+    @if (loading$ | async) {
+      <div class="loading-row"><div class="spinner"></div><span>Kullanıcılar yükleniyor...</span></div>
+    }
+    @if (error$ | async; as err) {
+      <div class="error-box">{{ err }}</div>
+    }
+    @if (total$ | async; as total) {
+      <div class="total-badge">
+        <span class="badge badge-blue">Toplam: {{ total }} kullanıcı</span>
+      </div>
+    }
+    <div class="users-grid">
+      @for (user of (users$ | async) ?? []; track user.id) {
+        <div class="user-card">
+          <img [src]="user.image" [alt]="user.firstName" class="user-avatar" />
+          <div class="user-info">
+            <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
+            <span class="user-email">{{ user.email }}</span>
+            <span class="user-age">{{ user.age }} yaş</span>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Composed Selector -->
+  <section class="demo-card">
+    <h2 class="section-title">Composed Selector — İki Feature'dan Birleşik Veri</h2>
+    <p class="section-desc">
+      <code>createSelector</code> ile birden fazla feature selector'ını birleştirip
+      memoize edilmiş türetilmiş veri oluştur.
+    </p>
+    <pre class="code-snippet" [textContent]="snippetComposedSelector"></pre>
+    @if (stats$ | async; as stats) {
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-number">{{ stats.usersTotal }}</span>
+          <span class="stat-label">Kullanıcı</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number">{{ stats.postsTotal }}</span>
+          <span class="stat-label">Gönderi</span>
+        </div>
+        <div class="stat-card stat-combined">
+          <span class="stat-desc">{{ stats.combined }}</span>
+          <span class="stat-label">Birleşik</span>
+        </div>
+      </div>
+    }
+    <p class="hint-text">💡 <code>selectDashboardStats</code>, <code>usersTotal</code> veya <code>postsTotal</code> değişmeden yeniden hesaplanmaz.</p>
+  </section>
+
+  <!-- ══ SENIOR ════════════════════════════════════════════════════════════ -->
+  <div class="level-header level-senior">
+    <span class="level-badge">Senior</span>
+    <span>ComponentStore · İleri Effects</span>
+  </div>
+
+  <!-- ComponentStore -->
+  <section class="demo-card">
+    <h2 class="section-title">ComponentStore — Lokal State Yönetimi</h2>
+    <p class="section-desc">
+      Global Store'a göndermeye değmeyecek kadar yerel durumlar için.
+      Route değişince otomatik temizlenir. Bu sayfadaki sepet, global store'a dokunmuyor.
+    </p>
+    <pre class="code-snippet" [textContent]="snippetComponentStore"></pre>
+
+    <div class="cart-layout">
+      <!-- Ürün listesi -->
+      <div class="product-list">
+        <h3 class="sub-title">Ürünler</h3>
+        @for (p of sampleProducts; track p.id) {
+          <div class="product-row">
+            <span class="product-name">{{ p.name }}</span>
+            <span class="product-price">{{ p.price }}₺</span>
+            <button class="btn btn-primary" (click)="addToCart(p)">Sepete Ekle</button>
+          </div>
+        }
+      </div>
+
+      <!-- Sepet (ComponentStore) -->
+      <div class="cart-panel">
+        <div class="cart-head">
+          <h3 class="sub-title">
+            Sepet
+            @if (cartCount$ | async; as count) {
+              <span class="badge badge-blue">{{ count }}</span>
+            }
+          </h3>
+          <button class="btn btn-danger" (click)="clearCart()">Temizle</button>
+        </div>
+        @if ((cartItems$ | async)?.length === 0) {
+          <p class="empty-cart">Sepet boş</p>
+        }
+        @for (item of (cartItems$ | async) ?? []; track item.id) {
+          <div class="cart-row">
+            <span class="cart-name">{{ item.name }}</span>
+            <span class="cart-qty">x{{ item.qty }}</span>
+            <span class="cart-price">{{ item.price * item.qty }}₺</span>
+            <button class="btn btn-danger" (click)="removeFromCart(item.id)">✕</button>
+          </div>
+        }
+        @if (cartTotal$ | async; as total) {
+          @if (total > 0) {
+            <div class="cart-total-row">
+              <strong>Toplam: {{ total }}₺</strong>
+            </div>
+          }
+        }
+      </div>
+    </div>
+
+    <div class="when-to-use">
+      <strong>Ne zaman ComponentStore, ne zaman global Store?</strong>
+      <div class="wtu-grid">
+        <div class="wtu-card">
+          <span class="badge badge-blue">Global Store</span>
+          <ul>
+            <li>Birden fazla bileşende paylaşılan veri</li>
+            <li>Route değişimlerinde korunması gereken state</li>
+            <li>DevTools ile debug edilmesi gereken veri</li>
+            <li>Kullanıcı oturumu, sepet, bildirimler</li>
+          </ul>
+        </div>
+        <div class="wtu-card">
+          <span class="badge badge-green">ComponentStore</span>
+          <ul>
+            <li>Yalnızca bir bileşene özgü state</li>
+            <li>Modal, dropdown, wizard adımları</li>
+            <li>Sayfa içi geçici durum</li>
+            <li>Bileşen kapandığında temizlenmeli</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Advanced Effects -->
+  <section class="demo-card">
+    <h2 class="section-title">İleri Effect Kalıpları</h2>
+    <p class="section-desc">
+      <code>concatLatestFrom</code> — effects içinde güvenli selector okuma.
+      Birden fazla action dispatch etme.
+    </p>
+    <pre class="code-snippet" [textContent]="snippetAdvancedEffect"></pre>
+    <div class="info-box">
+      <strong>concatLatestFrom vs withLatestFrom</strong>
+      <ul class="info-list">
+        <li><code>withLatestFrom</code>: selector subscription anında store'un son değerini alır — timing race condition riski var</li>
+        <li><code>concatLatestFrom</code>: NgRx'in kendi operatörü, action ile selector'ı senkronize eder — daha güvenli</li>
+        <li>Efekt içinde store'dan değer okuyacaksan <code>concatLatestFrom</code> tercih et</li>
+      </ul>
+    </div>
+  </section>
+</main>

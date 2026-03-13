@@ -1,0 +1,274 @@
+<main class="page-wrap">
+  <div class="page-header">
+    <h1>RxJS Operatör Laboratuvarı</h1>
+    <p class="subtitle">Her butona tıkla, çıktıyı gör — observable nedir, nasıl davranır?</p>
+  </div>
+
+  <!-- ── Bölüm 1: Temel Operatörler ─────────────────────────────────── -->
+  <h2 class="group-title">1 — Temel Dönüşüm Operatörleri</h2>
+
+  <div class="op-grid">
+    <!-- map -->
+    <section class="op-card">
+      <div class="op-head">
+        <span class="op-name">map</span>
+        <span class="op-desc">Her değeri dönüştürür</span>
+      </div>
+      <pre class="code-snippet">of(1, 2, 3, 4, 5).pipe(
+  map(n =&gt; n * n)   // 1, 4, 9, 16, 25
+)</pre>
+      <button class="btn btn-primary" (click)="runMap()">Çalıştır</button>
+      <div class="output-box">
+        @if (!mapOutput().length) {
+          <span class="output-empty">Butona tıklayın...</span>
+        }
+        @for (line of mapOutput(); track line) {
+          <div class="output-line">{{ line }}</div>
+        }
+      </div>
+    </section>
+
+    <!-- filter -->
+    <section class="op-card">
+      <div class="op-head">
+        <span class="op-name">filter</span>
+        <span class="op-desc">Koşulu sağlamayanları eler</span>
+      </div>
+      <pre class="code-snippet">from([1..10]).pipe(
+  filter(n =&gt; n % 2 === 0)  // 2, 4, 6, 8, 10
+)</pre>
+      <button class="btn btn-primary" (click)="runFilter()">Çalıştır</button>
+      <div class="output-box">
+        @if (!filterOutput().length) {
+          <span class="output-empty">Butona tıklayın...</span>
+        }
+        @for (line of filterOutput(); track line) {
+          <div class="output-line">{{ line }}</div>
+        }
+      </div>
+    </section>
+
+    <!-- scan -->
+    <section class="op-card">
+      <div class="op-head">
+        <span class="op-name">scan</span>
+        <span class="op-desc">Her adımda birikimli değer (sepet toplamı)</span>
+      </div>
+      <pre class="code-snippet">from([150, 299, 89, 450, 120]).pipe(
+  scan((acc, curr) =&gt; acc + curr, 0)
+  // 150, 449, 538, 988, 1108
+)</pre>
+      <button class="btn btn-primary" (click)="runScan()">Çalıştır</button>
+      <div class="output-box">
+        @if (!scanOutput().length) {
+          <span class="output-empty">Butona tıklayın...</span>
+        }
+        @for (line of scanOutput(); track line) {
+          <div class="output-line">{{ line }}</div>
+        }
+      </div>
+    </section>
+  </div>
+
+  <!-- ── Bölüm 2: Zaman Operatörleri ───────────────────────────────── -->
+  <h2 class="group-title">2 — Zaman Operatörleri</h2>
+
+  <section class="op-card op-card-wide">
+    <div class="op-head">
+      <span class="op-name">interval + take + takeUntil</span>
+      <span class="op-desc">Periyodik emisyon ve temiz durdurma</span>
+    </div>
+    <pre class="code-snippet">interval(400).pipe(   // her 400ms'de bir 0, 1, 2... yayınla
+  take(10),           // 10 değer al, sonra tamamla
+  takeUntil(stop$)    // stop$ emit edince hemen dur (bellek sızıntısı yok!)
+)</pre>
+    <div class="btn-row">
+      <button class="btn btn-primary" (click)="startTimer()" [disabled]="isTimerRunning()">
+        Başlat
+      </button>
+      <button class="btn btn-danger" (click)="stopTimer()" [disabled]="!isTimerRunning()">
+        Durdur (takeUntil)
+      </button>
+    </div>
+    <div class="output-box">
+      @if (!timerOutput().length) {
+        <span class="output-empty">Başlat'a basın...</span>
+      }
+      @for (line of timerOutput(); track line) {
+        <div class="output-line">{{ line }}</div>
+      }
+    </div>
+  </section>
+
+  <!-- ── Bölüm 3: Düzleştirme Operatörleri ──────────────────────────── -->
+  <h2 class="group-title">3 — Düzleştirme: switchMap / mergeMap / concatMap</h2>
+  <p class="group-desc">
+    Bir observable'ın içinden yeni observable döndürürken hangisini seç?
+    Aynı 3 HTTP isteğini (post 1, 2, 3) üç farklı şekilde yönet ve sonuçları karşılaştır.
+  </p>
+
+  <div class="op-grid op-grid-3">
+    <!-- switchMap -->
+    <section class="op-card">
+      <div class="op-head">
+        <span class="op-name op-name-switch">switchMap</span>
+        <span class="op-desc">Yeni gelince öncekini iptal et</span>
+      </div>
+      <pre class="code-snippet">// Kullanım: arama kutusu, route değişimi
+// Önceki istek tamamlanmadan yeni gelirse
+// önceki otomatik iptal edilir
+of(1, 2, 3).pipe(
+  switchMap(id =&gt; http.get('/posts/' + id))
+)</pre>
+      <button class="btn btn-primary" (click)="runSwitchMap()" [disabled]="switchMapLoading()">
+        @if (switchMapLoading()) { ⏳ } @else { Çalıştır } </button>
+      <div class="output-box">
+        @if (!switchMapOutput().length) {
+          <span class="output-empty">Butona tıklayın...</span>
+        }
+        @for (line of switchMapOutput(); track $index) {
+          <div [class]="line.startsWith('▶') ? 'output-line output-info' : 'output-line'">{{ line }}</div>
+        }
+      </div>
+    </section>
+
+    <!-- mergeMap -->
+    <section class="op-card">
+      <div class="op-head">
+        <span class="op-name op-name-merge">mergeMap</span>
+        <span class="op-desc">Hepsini eş zamanlı çalıştır</span>
+      </div>
+      <pre class="code-snippet">// Kullanım: paralel yüklemeler
+// Tüm inner observable'lar aynı anda
+// çalışır, sonuçlar karışık gelebilir
+of(1, 2, 3).pipe(
+  mergeMap(id =&gt; http.get('/posts/' + id))
+)</pre>
+      <button class="btn btn-primary" (click)="runMergeMap()" [disabled]="mergeMapLoading()">
+        @if (mergeMapLoading()) { ⏳ } @else { Çalıştır } </button>
+      <div class="output-box">
+        @if (!mergeMapOutput().length) {
+          <span class="output-empty">Butona tıklayın...</span>
+        }
+        @for (line of mergeMapOutput(); track $index) {
+          <div [class]="line.startsWith('▶') ? 'output-line output-info' : 'output-line'">{{ line }}</div>
+        }
+      </div>
+    </section>
+
+    <!-- concatMap -->
+    <section class="op-card">
+      <div class="op-head">
+        <span class="op-name op-name-concat">concatMap</span>
+        <span class="op-desc">Sırayla, biri bitmeden diğeri başlamaz</span>
+      </div>
+      <pre class="code-snippet">// Kullanım: sıralı upload, adım adım akış
+// Her inner tamamlanmadan diğeri
+// başlamaz — sıra garantisi var
+of(1, 2, 3).pipe(
+  concatMap(id =&gt; http.get('/posts/' + id))
+)</pre>
+      <button class="btn btn-primary" (click)="runConcatMap()" [disabled]="concatMapLoading()">
+        @if (concatMapLoading()) { ⏳ } @else { Çalıştır } </button>
+      <div class="output-box">
+        @if (!concatMapOutput().length) {
+          <span class="output-empty">Butona tıklayın...</span>
+        }
+        @for (line of concatMapOutput(); track $index) {
+          <div [class]="line.startsWith('▶') ? 'output-line output-info' : 'output-line'">{{ line }}</div>
+        }
+      </div>
+    </section>
+  </div>
+
+  <!-- ── Bölüm 4: Birleştirme ──────────────────────────────────────── -->
+  <h2 class="group-title">4 — Birleştirme: combineLatest / forkJoin</h2>
+
+  <div class="op-grid">
+    <!-- combineLatest -->
+    <section class="op-card">
+      <div class="op-head">
+        <span class="op-name">combineLatest</span>
+        <span class="op-desc">Herhangi biri değişince hepsini birleştir</span>
+      </div>
+      <pre class="code-snippet">// Birden fazla stream var, herhangi biri
+// değişince hepsinin son değeri gelir
+combineLatest([price$, qty$, discount$]).pipe(
+  map(([price, qty, disc]) =&gt; price * qty * (1 - disc))
+)</pre>
+      <button class="btn btn-primary" (click)="runCombineLatest()">Çalıştır</button>
+      <div class="output-box">
+        @if (!combineLatestOutput()) {
+          <span class="output-empty">Butona tıklayın...</span>
+        } @else {
+          <div class="output-line">{{ combineLatestOutput() }}</div>
+        }
+      </div>
+    </section>
+
+    <!-- forkJoin -->
+    <section class="op-card">
+      <div class="op-head">
+        <span class="op-name">forkJoin</span>
+        <span class="op-desc">Hepsi tamamlanınca son değerleri ver (Promise.all gibi)</span>
+      </div>
+      <pre class="code-snippet" [textContent]="snippetForkJoin"></pre>
+      <button class="btn btn-primary" (click)="runForkJoin()" [disabled]="forkJoinLoading()">
+        @if (forkJoinLoading()) { ⏳ Bekleniyor... } @else { 3 Paralel İstek Gönder } </button>
+      <div class="output-box">
+        @if (!forkJoinOutput().length) {
+          <span class="output-empty">Butona tıklayın...</span>
+        }
+        @for (line of forkJoinOutput(); track $index) {
+          <div [class]="line.startsWith('⏱') ? 'output-line output-time' : 'output-line'">{{ line }}</div>
+        }
+      </div>
+    </section>
+  </div>
+
+  <!-- ── Bölüm 5: Hata Yönetimi ─────────────────────────────────────── -->
+  <h2 class="group-title">5 — Hata Yönetimi: catchError / startWith</h2>
+
+  <div class="op-grid">
+    <!-- catchError -->
+    <section class="op-card">
+      <div class="op-head">
+        <span class="op-name">catchError</span>
+        <span class="op-desc">Hata gelince stream'i kurtarır, uygulama çökmez</span>
+      </div>
+      <pre class="code-snippet" [textContent]="snippetCatchError"></pre>
+      <button class="btn btn-primary" (click)="runCatchError()">Hatalı İstek Gönder</button>
+      <div class="output-box">
+        @if (!catchErrorOutput()) {
+          <span class="output-empty">Butona tıklayın...</span>
+        } @else {
+          <pre class="output-line">{{ catchErrorOutput() }}</pre>
+        }
+      </div>
+    </section>
+
+    <!-- startWith -->
+    <section class="op-card">
+      <div class="op-head">
+        <span class="op-name">startWith</span>
+        <span class="op-desc">HTTP gelmeden önce anında ilk değeri yayınla</span>
+      </div>
+      <pre class="code-snippet">http.get('/posts/1').pipe(
+  map(post =&gt; '✓ Yüklendi: ' + post.title),
+  startWith('⏳ Yükleniyor...')  // hemen tetiklenir
+)
+// Çıktı sırası:
+// 1. '⏳ Yükleniyor...'  (anında)
+// 2. '✓ Yüklendi: ...'   (HTTP cevabı)</pre>
+      <button class="btn btn-primary" (click)="runStartWith()">Çalıştır</button>
+      <div class="output-box">
+        @if (!startWithOutput().length) {
+          <span class="output-empty">Butona tıklayın...</span>
+        }
+        @for (line of startWithOutput(); track $index) {
+          <div class="output-line">{{ line }}</div>
+        }
+      </div>
+    </section>
+  </div>
+</main>

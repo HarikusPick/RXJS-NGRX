@@ -1,0 +1,13 @@
+<div class="sc-inner">
+  <div class="sc-header">
+    <span class="sc-title">{{ title() }}</span>
+    <span class="sc-price">{{ basePrice() }}₺ / adet</span>
+  </div>
+  <div class="sc-row">
+    <button class="btn btn-secondary sc-btn" (click)="decrement()">−</button>
+    <span class="sc-qty">{{ quantity() }}</span>
+    <button class="btn btn-secondary sc-btn" (click)="increment()">+</button>
+    <span class="sc-total">= {{ total() }}₺</span>
+  </div>
+  <button class="btn btn-danger sc-remove" (click)="remove()">Kaldır</button>
+</div>

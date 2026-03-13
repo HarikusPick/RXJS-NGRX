@@ -1,0 +1,173 @@
+<main class="page-wrap">
+  <div class="page-header">
+    <h1>Promise vs Observable</h1>
+    <p class="subtitle">İkisi de asenkron — ama farkları kritik! Canlı demoyla gör.</p>
+  </div>
+
+  <!-- Fark Tablosu -->
+  <section class="demo-card">
+    <h2 class="section-title">Temel Farklar</h2>
+    <div class="diff-table">
+      <div class="diff-header">
+        <span></span>
+        <span class="col-promise">Promise</span>
+        <span class="col-obs">Observable</span>
+      </div>
+      <div class="diff-row">
+        <span class="diff-label">Tetikleme</span>
+        <span>Hemen başlar (eager)</span>
+        <span>Abone olunca başlar (lazy)</span>
+      </div>
+      <div class="diff-row">
+        <span class="diff-label">Değer sayısı</span>
+        <span>Tek değer (1 resolve)</span>
+        <span>0..∞ değer yayınlayabilir</span>
+      </div>
+      <div class="diff-row">
+        <span class="diff-label">İptal</span>
+        <span class="text-danger">❌ İptal edilemez</span>
+        <span class="text-success">✓ unsubscribe() ile iptal</span>
+      </div>
+      <div class="diff-row">
+        <span class="diff-label">Operatörler</span>
+        <span>.then() / .catch()</span>
+        <span>pipe(map, filter, switchMap...)</span>
+      </div>
+      <div class="diff-row">
+        <span class="diff-label">Lazy/Eager</span>
+        <span>Eager — oluşturunca çalışır</span>
+        <span>Lazy — subscribe olmadan çalışmaz</span>
+      </div>
+      <div class="diff-row">
+        <span class="diff-label">Angular'da</span>
+        <span>async/await ile kullanım</span>
+        <span>async pipe / subscribe()</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 1. Tek İstek Karşılaştırması ───────────────────────────────────── -->
+  <h2 class="group-title">1 — Tek İstek: fetch (Promise) vs http.get() (Observable)</h2>
+
+  <div class="compare-grid">
+    <!-- Promise side -->
+    <section class="demo-card">
+      <div class="compare-head">
+        <span class="badge badge-yellow">Promise + async/await</span>
+      </div>
+      <pre class="code-snippet" [textContent]="snippetPromise"></pre>
+      <button class="btn btn-primary" (click)="fetchWithPromise()" [disabled]="promiseLoading()">
+        @if (promiseLoading()) { ⏳ Bekleniyor... } @else { fetch() ile Getir } </button>
+      @if (promiseError()) {
+        <div class="error-box">{{ promiseError() }}</div>
+      }
+      @if (promiseResult()) {
+        <div class="result-box">
+          <div class="result-time">⏱ {{ promiseTime() }}ms</div>
+          <div class="result-field"><b>id:</b> {{ promiseResult().id }}</div>
+          <div class="result-field"><b>title:</b> {{ promiseResult().title }}</div>
+          <div class="result-tags">
+            @for (tag of promiseResult().tags; track tag) {
+              <span class="tag">{{ tag }}</span>
+            }
+          </div>
+        </div>
+      }
+    </section>
+
+    <!-- Observable side -->
+    <section class="demo-card">
+      <div class="compare-head">
+        <span class="badge badge-blue">Observable + pipe</span>
+      </div>
+      <pre class="code-snippet" [textContent]="snippetObservable"></pre>
+      <div class="btn-row">
+        <button class="btn btn-primary" (click)="fetchWithObservable()" [disabled]="obsLoading()">
+          @if (obsLoading()) { ⏳ Bekleniyor... } @else { http.get() ile Getir } </button>
+        <button class="btn btn-danger" (click)="cancelObservable()" [disabled]="!obsLoading()">
+          İptal Et ✕
+        </button>
+      </div>
+      @if (obsError()) {
+        <div class="error-box">{{ obsError() }}</div>
+      }
+      @if (obsResult()) {
+        <div class="result-box">
+          <div class="result-time">⏱ {{ obsTime() }}ms</div>
+          <div class="result-field"><b>id:</b> {{ obsResult().id }}</div>
+          <div class="result-field"><b>title:</b> {{ obsResult().title }}</div>
+          <div class="result-tags">
+            @for (tag of obsResult().tags; track tag) {
+              <span class="tag">{{ tag }}</span>
+            }
+          </div>
+        </div>
+      }
+      <p class="hint-text">💡 "İptal Et" butonuna basmayı dene — Observable'ı subscribe olmadan durdurabilirsin. Promise bunu yapamaz!</p>
+    </section>
+  </div>
+
+  <!-- ── 2. Paralel: Promise.all vs forkJoin ─────────────────────────────── -->
+  <h2 class="group-title">2 — Paralel İstekler: Promise.all vs forkJoin</h2>
+
+  <div class="compare-grid">
+    <section class="demo-card">
+      <div class="compare-head">
+        <span class="badge badge-yellow">Promise.all</span>
+      </div>
+      <pre class="code-snippet" [textContent]="snippetPromiseAll"></pre>
+      <button class="btn btn-primary" (click)="fetchWithPromiseAll()" [disabled]="promiseAllLoading()">
+        @if (promiseAllLoading()) { ⏳ } @else { Promise.all Çalıştır } </button>
+      <div class="output-box">
+        @if (!promiseAllResult().length) {
+          <span class="output-empty">Butona tıklayın...</span>
+        }
+        @for (line of promiseAllResult(); track $index) {
+          <div [class]="line.startsWith('⏱') ? 'output-line output-time' : 'output-line'">{{ line }}</div>
+        }
+      </div>
+    </section>
+
+    <section class="demo-card">
+      <div class="compare-head">
+        <span class="badge badge-blue">forkJoin</span>
+      </div>
+      <pre class="code-snippet" [textContent]="snippetForkJoin"></pre>
+      <button class="btn btn-primary" (click)="fetchWithForkJoin()" [disabled]="forkJoinLoading()">
+        @if (forkJoinLoading()) { ⏳ } @else { forkJoin Çalıştır } </button>
+      <div class="output-box">
+        @if (!forkJoinResult().length) {
+          <span class="output-empty">Butona tıklayın...</span>
+        }
+        @for (line of forkJoinResult(); track $index) {
+          <div [class]="line.startsWith('⏱') ? 'output-line output-time' : 'output-line'">{{ line }}</div>
+        }
+      </div>
+    </section>
+  </div>
+
+  <!-- ── 3. from(Promise) ──────────────────────────────────────────────── -->
+  <h2 class="group-title">3 — from(Promise) — Promise'i Observable Zinciriyle Kullan</h2>
+
+  <section class="demo-card">
+    <h2 class="section-title">from() — Köprü operatörü</h2>
+    <p class="section-desc">
+      Native <code>fetch</code> kullanıyorsun ama RxJS operatörlerini de istiyorsun?
+      <code>from(promise)</code> ile Promise'i Observable'a çevirip pipe() zincirini kullanabilirsin.
+    </p>
+    <pre class="code-snippet" [textContent]="snippetFrom"></pre>
+    <button class="btn btn-primary" (click)="fetchWithFrom()" [disabled]="fromLoading()">
+      @if (fromLoading()) { ⏳ } @else { from(fetch()) Çalıştır } </button>
+    @if (fromResult()) {
+      <div class="result-box">
+        <div class="result-field"><b>id:</b> {{ fromResult().id }}</div>
+        <div class="result-field"><b>title:</b> {{ fromResult().title }}</div>
+        <div class="result-tags">
+          @for (tag of fromResult().tags; track tag) {
+            <span class="tag">{{ tag }}</span>
+          }
+        </div>
+      </div>
+    }
+  </section>
+</main>

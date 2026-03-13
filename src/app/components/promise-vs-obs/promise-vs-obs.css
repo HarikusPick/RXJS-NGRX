@@ -1,0 +1,121 @@
+/* Diff table */
+.diff-table {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: 0.85rem;
+}
+
+.diff-header,
+.diff-row {
+  display: grid;
+  grid-template-columns: 160px 1fr 1fr;
+  gap: 0;
+}
+
+.diff-header {
+  background: var(--panel-2);
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+
+.diff-header span,
+.diff-row span {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.diff-header span:not(:last-child),
+.diff-row span:not(:last-child) {
+  border-right: 1px solid var(--border);
+}
+
+.diff-label {
+  color: var(--subtext);
+  font-weight: 600;
+}
+
+.col-promise { color: var(--warning); }
+.col-obs { color: var(--primary); }
+.text-success { color: var(--success); }
+.text-danger { color: var(--danger); }
+
+/* Compare grid */
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.compare-head {
+  margin-bottom: 4px;
+}
+
+.btn-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Result box */
+.result-box {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 10px;
+  font-size: 0.85rem;
+}
+
+.result-time {
+  color: var(--warning);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  margin-bottom: 8px;
+}
+
+.result-field {
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.result-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+/* Output box */
+.output-box {
+  background: #0a0e14;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 14px;
+  min-height: 80px;
+  margin-top: 12px;
+}
+
+.output-line {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--success);
+  padding: 1px 0;
+}
+
+.output-time { color: var(--warning); font-weight: 600; }
+.output-empty { color: var(--subtext); font-size: 0.82rem; font-style: italic; }
+
+.hint-text {
+  font-size: 0.8rem;
+  color: var(--subtext);
+  margin-top: 10px;
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .compare-grid { grid-template-columns: 1fr; }
+  .diff-header, .diff-row { grid-template-columns: 120px 1fr; }
+  .diff-header span:nth-child(3), .diff-row span:nth-child(3) { display: none; }
+}

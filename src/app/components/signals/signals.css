@@ -1,0 +1,165 @@
+.level-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 32px 0 12px;
+  font-size: 0.85rem;
+  color: var(--subtext);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+
+.level-badge {
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.level-junior .level-badge { background: rgba(63,185,80,.15); color: var(--success); }
+.level-mid    .level-badge { background: rgba(88,166,255,.15); color: var(--primary); }
+.level-senior .level-badge { background: rgba(210,153,34,.15); color: var(--warning); }
+
+/* ── Counter demo ── */
+.counter-demo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0;
+}
+.counter-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  min-width: 50px;
+  text-align: center;
+}
+
+/* ── Cart demo ── */
+.cart-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.cart-total { color: var(--success); font-size: 0.95rem; }
+.cart-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.cart-name { flex: 1; font-size: 0.875rem; }
+.cart-price { color: var(--warning); font-size: 0.875rem; min-width: 60px; text-align: right; }
+
+/* ── Effect demo ── */
+.output-box { margin-top: 12px; }
+
+/* ── toSignal demo ── */
+.to-signal-demo { display: flex; flex-direction: column; gap: 12px; margin: 14px 0; }
+.ticker-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.ticker-value {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--success);
+}
+
+/* ── Products mini ── */
+.products-mini {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.product-chip {
+  padding: 3px 10px;
+  background: rgba(88,166,255,.1);
+  color: var(--primary);
+  border-radius: 100px;
+  font-size: 0.78rem;
+}
+
+/* ── SignalCard grid ── */
+.signal-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin: 14px 0;
+}
+
+/* signal-card inner */
+:host ::ng-deep .sc-inner {
+  padding: 14px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+:host ::ng-deep .sc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+:host ::ng-deep .sc-title { font-weight: 600; font-size: 0.9rem; }
+:host ::ng-deep .sc-price { color: var(--subtext); font-size: 0.8rem; }
+:host ::ng-deep .sc-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+:host ::ng-deep .sc-btn { padding: 2px 10px; font-size: 1rem; }
+:host ::ng-deep .sc-qty {
+  font-size: 1.1rem;
+  font-weight: 700;
+  min-width: 24px;
+  text-align: center;
+}
+:host ::ng-deep .sc-total { color: var(--success); font-size: 0.875rem; margin-left: auto; }
+:host ::ng-deep .sc-remove { align-self: flex-start; }
+
+/* ── linkedSignal demo ── */
+.linked-demo { display: flex; flex-direction: column; gap: 12px; margin: 14px 0; }
+.category-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.page-controls { display: flex; align-items: center; gap: 10px; }
+.page-indicator {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  min-width: 70px;
+  text-align: center;
+}
+
+/* ── rxResource demo ── */
+.resource-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.resource-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+.resource-card {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.rc-img { width: 100%; height: 80px; object-fit: contain; border-radius: 4px; }
+.rc-title { font-size: 0.78rem; color: var(--text); font-weight: 500; }
+.rc-price { color: var(--warning); font-size: 0.8rem; font-weight: 600; }
+
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }

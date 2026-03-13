@@ -1,0 +1,99 @@
+<main class="page-wrap">
+  <div class="page-header">
+    <h1>NgRx Store Örneği</h1>
+    <p class="subtitle">Actions → Effects (HTTP) → Reducer → State → Selectors → Template</p>
+  </div>
+
+  <!-- NgRx Flow Diagram -->
+  <section class="flow-diagram">
+    <div class="flow-node node-component">
+      <span class="node-label">Component</span>
+      <code>dispatch(loadPosts())</code>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node node-effect">
+      <span class="node-label">Effect</span>
+      <code>HTTP GET /posts</code>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node node-reducer">
+      <span class="node-label">Reducer</span>
+      <code>state günceller</code>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node node-selector">
+      <span class="node-label">Selector</span>
+      <code>store.select()</code>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node node-template">
+      <span class="node-label">Template</span>
+      <code>async pipe</code>
+    </div>
+  </section>
+
+  <!-- Kod özeti -->
+  <section class="demo-card">
+    <h2 class="section-title">Nasıl çalışır?</h2>
+    <div class="code-cols">
+      <div>
+        <p class="code-label">1. Action — ne olduğunu bildir</p>
+        <pre class="code-snippet" [textContent]="snippetActions"></pre>
+      </div>
+      <div>
+        <p class="code-label">2. Reducer — state'i güncelle (pure fn)</p>
+        <pre class="code-snippet" [textContent]="snippetReducer"></pre>
+      </div>
+      <div>
+        <p class="code-label">3. Effect — yan etki (HTTP)</p>
+        <pre class="code-snippet" [textContent]="snippetEffect"></pre>
+      </div>
+      <div>
+        <p class="code-label">4. Selector + Component</p>
+        <pre class="code-snippet" [textContent]="snippetSelector"></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button type="button" class="btn btn-primary" (click)="reload()">
+      Yeniden Yükle (dispatch)
+    </button>
+    @if (total$ | async; as total) {
+      <span class="badge badge-blue">{{ total }} post mevcut, 20 gösteriliyor</span>
+    }
+  </div>
+
+  <!-- Loading state -->
+  @if (loading$ | async) {
+    <div class="loading-row">
+      <div class="spinner"></div>
+      <span>Effect HTTP isteği yapıyor...</span>
+    </div>
+  }
+
+  <!-- Error state -->
+  @if (error$ | async; as error) {
+    <div class="error-box">Hata: {{ error }}</div>
+  }
+
+  <!-- Posts grid -->
+  <div class="posts-grid">
+    @for (post of posts$ | async; track post.id) {
+      <article class="post-card">
+        <div class="post-id">#{{ post.id }}</div>
+        <h3>{{ post.title }}</h3>
+        <p class="post-body">{{ post.body | slice: 0 : 90 }}...</p>
+        <div class="post-tags">
+          @for (tag of post.tags; track tag) {
+            <span class="tag">{{ tag }}</span>
+          }
+        </div>
+        <div class="post-reactions">
+          👍 {{ post.reactions.likes }} &nbsp; 👎 {{ post.reactions.dislikes }} &nbsp; 👁 {{ post.views }}
+        </div>
+      </article>
+    }
+  </div>
+</main>

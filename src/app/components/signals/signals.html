@@ -1,0 +1,233 @@
+<main class="page-wrap">
+  <div class="page-header">
+    <h1>Angular Signals</h1>
+    <p class="subtitle">signal · computed · effect · toSignal · toObservable · input/output · linkedSignal · rxResource</p>
+  </div>
+
+  <!-- ══ JUNIOR ══════════════════════════════════════════════════════════ -->
+  <div class="level-header level-junior">
+    <span class="level-badge">Junior</span>
+    <span>Temel Signal API'leri</span>
+  </div>
+
+  <!-- signal() -->
+  <section class="demo-card">
+    <h2 class="section-title">signal() — Yazılabilir reaktif değer</h2>
+    <p class="section-desc">
+      Zone.js'e gerek kalmadan değişiklikleri takip eden Angular'ın temel reaktivite primitifi.
+      <code>.set()</code> ile doğrudan ata, <code>.update()</code> ile önceki değere göre değiştir.
+    </p>
+    <pre class="code-snippet" [textContent]="snippetSignal"></pre>
+    <div class="counter-demo">
+      <button class="btn btn-secondary" (click)="decrement()">−</button>
+      <span class="counter-value">{{ count() }}</span>
+      <button class="btn btn-secondary" (click)="increment()">+</button>
+      <button class="btn btn-primary" (click)="resetCount()">Sıfırla</button>
+    </div>
+    <p class="hint-text">💡 Template'te <code>count()</code> ile okuyorsun. Angular, bu çağrıyı bir bağımlılık olarak kayıt eder.</p>
+  </section>
+
+  <!-- computed() -->
+  <section class="demo-card">
+    <h2 class="section-title">computed() — Memoize edilmiş türetilmiş değer</h2>
+    <p class="section-desc">
+      Bağımlı sinyaller değişmeden yeniden hesaplanmaz. Performanslı ve salt-okunur.
+    </p>
+    <pre class="code-snippet" [textContent]="snippetComputed"></pre>
+    <div class="cart-demo">
+      <div class="cart-header">
+        <span class="badge badge-blue">{{ cartCount() }} ürün</span>
+        <strong class="cart-total">Toplam: {{ cartTotal() }}₺</strong>
+        <button class="btn btn-secondary" (click)="addCartItem()">+ Ürün Ekle</button>
+      </div>
+      @for (item of cartItems(); track item.id) {
+        <div class="cart-row">
+          <span class="cart-name">{{ item.name }}</span>
+          <span class="cart-price">{{ item.price }}₺</span>
+          <button class="btn btn-danger" (click)="removeCartItem(item.id)">✕</button>
+        </div>
+      }
+    </div>
+    <p class="hint-text">💡 Ürün ekle/çıkar — <code>cartTotal()</code> ve <code>cartCount()</code> yalnızca <code>cartItems()</code> değişince güncellenir.</p>
+  </section>
+
+  <!-- effect() -->
+  <section class="demo-card">
+    <h2 class="section-title">effect() — Reaktif yan etki</h2>
+    <p class="section-desc">
+      Okuduğu sinyallerden biri değiştiğinde otomatik yeniden çalışır.
+      DOM manipülasyonu, loglama, localStorage senkronizasyonu için kullanılır.
+    </p>
+    <pre class="code-snippet" [textContent]="snippetEffect"></pre>
+    <div class="btn-row">
+      <button class="btn btn-secondary" (click)="decrement()">count −</button>
+      <button class="btn btn-secondary" (click)="increment()">count +</button>
+      <button class="btn btn-primary" (click)="toggleTheme()">
+        Tema Değiştir ({{ theme() }})
+      </button>
+    </div>
+    <div class="output-box">
+      @if (!effectLog().length) {
+        <span class="output-empty">Butonlara tıkla — effect() çalıştığında buraya yazar...</span>
+      }
+      @for (line of effectLog(); track $index) {
+        <div class="output-line output-info">{{ line }}</div>
+      }
+    </div>
+    <p class="hint-text">💡 effect(), <code>count</code> VEYA <code>theme</code> değişince tetiklenir — iki bağımlılığı birden takip eder.</p>
+  </section>
+
+  <!-- ══ MID ══════════════════════════════════════════════════════════════ -->
+  <div class="level-header level-mid">
+    <span class="level-badge">Mid</span>
+    <span>RxJS ↔ Signal köprüsü &amp; bileşen I/O</span>
+  </div>
+
+  <!-- toSignal() -->
+  <section class="demo-card">
+    <h2 class="section-title">toSignal() — Observable'ı Signal'a çevir</h2>
+    <p class="section-desc">
+      <code>async pipe</code>'ın yerini alır. Otomatik abone olur, bileşen destroy olunca otomatik iptal eder.
+      HTTP ve interval Observable'larını Signal'a dönüştür.
+    </p>
+    <pre class="code-snippet" [textContent]="snippetToSignal"></pre>
+    <div class="to-signal-demo">
+      <div class="ticker-box">
+        <span class="badge badge-green">interval(1000) → toSignal()</span>
+        <span class="ticker-value">{{ tickerSignal() }}</span>
+      </div>
+      <div class="products-mini">
+        <span class="badge badge-blue">HTTP GET → toSignal() — {{ topProducts().length }} ürün</span>
+        <div class="chip-row">
+          @for (p of topProducts(); track p.id) {
+            <span class="product-chip">{{ p.title }}</span>
+          }
+        </div>
+      </div>
+    </div>
+    <p class="hint-text">💡 Template'te <code>tickerSignal()</code> — subscribe, unsubscribe veya async pipe yok. toSignal her şeyi yönetiyor.</p>
+  </section>
+
+  <!-- toObservable() -->
+  <section class="demo-card">
+    <h2 class="section-title">toObservable() — Signal'ı Observable'a çevir</h2>
+    <p class="section-desc">
+      Signal'a <code>debounce</code>, <code>switchMap</code> gibi RxJS operatörleri uygulamak istediğinde kullan.
+      Signal değişimlerini Observable stream'e çevirir.
+    </p>
+    <pre class="code-snippet" [textContent]="snippetToObservable"></pre>
+    <input
+      class="search-input"
+      [value]="searchQuery()"
+      (input)="searchQuery.set($any($event).target.value)"
+      placeholder="Ürün ara (en az 2 karakter)..."
+    />
+    @if (searchLoading()) {
+      <div class="loading-row"><div class="spinner"></div><span>Aranıyor...</span></div>
+    }
+    <div class="chip-row">
+      @if (!searchLoading() && !searchResults().length) {
+        <span class="output-empty">Yazmaya başla → toObservable + switchMap çalışır...</span>
+      }
+      @for (p of searchResults(); track p.id) {
+        <span class="product-chip">{{ p.title }}</span>
+      }
+    </div>
+  </section>
+
+  <!-- input() / output() -->
+  <section class="demo-card">
+    <h2 class="section-title">input() / output() — Signal tabanlı bileşen I/O</h2>
+    <p class="section-desc">
+      <code>@Input()</code> ve <code>@Output()</code>'ın modern yeni hali.
+      Child bileşen, <code>input()</code>'u <code>computed()</code> içinde doğrudan kullanabilir.
+    </p>
+    <pre class="code-snippet" [textContent]="snippetInput"></pre>
+    <div class="signal-cards-grid">
+      @for (p of cardProducts(); track p.id) {
+        <app-signal-card
+          [title]="p.name"
+          [basePrice]="p.price"
+          (removed)="onCardRemoved($event)"
+        />
+      }
+      @if (!cardProducts().length) {
+        <span class="output-empty">Tüm kartlar kaldırıldı.</span>
+      }
+    </div>
+    @if (removedLog().length) {
+      <div class="output-box" style="margin-top: 10px">
+        @for (line of removedLog(); track $index) {
+          <div class="output-line output-info">{{ line }}</div>
+        }
+      </div>
+    }
+    <p class="hint-text">💡 <code>SignalCardComponent</code>'te <code>total = computed(() =&gt; basePrice() * quantity())</code> — input signal'ını computed içinde kullanıyor.</p>
+  </section>
+
+  <!-- ══ SENIOR ════════════════════════════════════════════════════════════ -->
+  <div class="level-header level-senior">
+    <span class="level-badge">Senior</span>
+    <span>linkedSignal · rxResource · performans</span>
+  </div>
+
+  <!-- linkedSignal() -->
+  <section class="demo-card">
+    <h2 class="section-title">linkedSignal() — Türetilmiş ama yazılabilir signal</h2>
+    <p class="section-desc">
+      <code>computed()</code> gibi bağımlılık takibi yapar, ama <code>.set()</code> / <code>.update()</code> ile
+      manuel güncelleme de mümkündür. Sayfalama + filtre gibi durumlar için idealdir. (Angular 19+)
+    </p>
+    <pre class="code-snippet" [textContent]="snippetLinkedSignal"></pre>
+    <div class="linked-demo">
+      <div class="category-pills">
+        @for (cat of categories; track cat) {
+          <button
+            [class]="'btn ' + (selectedCategory() === cat ? 'btn-primary' : 'btn-secondary')"
+            (click)="selectedCategory.set(cat)"
+          >{{ cat }}</button>
+        }
+      </div>
+      <div class="page-controls">
+        <button class="btn btn-secondary" (click)="prevPage()" [disabled]="currentPage() <= 1">←</button>
+        <span class="page-indicator">Sayfa {{ currentPage() }}</span>
+        <button class="btn btn-secondary" (click)="nextPage()">→</button>
+      </div>
+      <p class="hint-text">💡 Kategori değiştiğinde sayfa <strong>otomatik 1'e döner</strong> — linkedSignal bunu yapar. Sayfayı manuel artırabilirsin ama kategori değiştirince sıfırlanır.</p>
+    </div>
+  </section>
+
+  <!-- rxResource() -->
+  <section class="demo-card">
+    <h2 class="section-title">rxResource() — Reaktif HTTP kaynağı</h2>
+    <p class="section-desc">
+      Request sinyalleri değiştiğinde otomatik HTTP isteği atar. <code>effect()</code> + subscription yönetimi gerekmez. (Angular 19+)
+    </p>
+    <pre class="code-snippet" [textContent]="snippetRxResource"></pre>
+    <div class="resource-demo">
+      <div class="resource-header">
+        <span class="badge badge-blue">{{ selectedCategory() }} / sayfa {{ currentPage() }}</span>
+        @if (productsResource.isLoading()) {
+          <span class="badge badge-gray">Yükleniyor...</span>
+        }
+        <button class="btn btn-secondary" (click)="productsResource.reload()">Yenile</button>
+      </div>
+      @if (productsResource.isLoading()) {
+        <div class="loading-row"><div class="spinner"></div><span>Veriler çekiliyor...</span></div>
+      }
+      @if (productsResource.error()) {
+        <div class="error-box">Hata oluştu.</div>
+      }
+      <div class="resource-grid">
+        @for (p of (productsResource.value() ?? []); track p.id) {
+          <div class="resource-card">
+            <img [src]="p.thumbnail" [alt]="p.title" class="rc-img" />
+            <span class="rc-title">{{ p.title }}</span>
+            <span class="rc-price">{{ p.price }}$</span>
+          </div>
+        }
+      </div>
+    </div>
+    <p class="hint-text">💡 Kategori veya sayfa değiştiğinde rxResource <strong>otomatik</strong> yeni istek atar. Effect, subscribe veya unsubscribe yazmadık.</p>
+  </section>
+</main>

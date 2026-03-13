@@ -1,0 +1,272 @@
+<main class="page-wrap">
+  <div class="page-header">
+    <h1>RxJS Subjects &amp; İleri Operatörler</h1>
+    <p class="subtitle">Subject · BehaviorSubject · ReplaySubject · AsyncSubject · shareReplay · exhaustMap · retry · defer</p>
+  </div>
+
+  <!-- ══ JUNIOR ══════════════════════════════════════════════════════════ -->
+  <div class="level-header level-junior">
+    <span class="level-badge">Junior</span>
+    <span>Subject ailesi — 4 tür karşılaştırması</span>
+  </div>
+
+  <section class="demo-card">
+    <h2 class="section-title">Subject Ailesi — Canlı Karşılaştırma</h2>
+    <p class="section-desc">
+      Dört Subject türü de "hem Observable hem Observer" gibi davranır.
+      Farkları: geç abonelerin ne alacağında gizlidir.
+    </p>
+    <pre class="code-snippet" [textContent]="snippetSubjectFamily"></pre>
+
+    <div class="subjects-grid">
+      <!-- Subject -->
+      <div class="subject-panel">
+        <div class="subject-head">
+          <span class="badge badge-gray">Subject</span>
+          <span class="subject-tag">Geçmiş yok</span>
+        </div>
+        <p class="subject-desc">Hot observable. Geç abone önceki değerleri kaçırır.</p>
+        <button class="btn btn-primary" (click)="runSubjectDemo()">Demo Çalıştır</button>
+        <div class="output-box output-sm">
+          @if (!subjectLogs().length) {
+            <span class="output-empty">Butona tıkla...</span>
+          }
+          @for (line of subjectLogs(); track $index) {
+            <div class="output-line output-info">{{ line }}</div>
+          }
+        </div>
+      </div>
+
+      <!-- BehaviorSubject -->
+      <div class="subject-panel">
+        <div class="subject-head">
+          <span class="badge badge-blue">BehaviorSubject</span>
+          <span class="subject-tag">Anlık değer</span>
+        </div>
+        <p class="subject-desc">Başlangıç değeri gerektirir. Geç abone mevcut değeri hemen alır.</p>
+        <button class="btn btn-primary" (click)="runBehaviorDemo()">Demo Çalıştır</button>
+        <div class="output-box output-sm">
+          @if (!behaviorLogs().length) {
+            <span class="output-empty">Butona tıkla...</span>
+          }
+          @for (line of behaviorLogs(); track $index) {
+            <div class="output-line output-info">{{ line }}</div>
+          }
+        </div>
+      </div>
+
+      <!-- ReplaySubject -->
+      <div class="subject-panel">
+        <div class="subject-head">
+          <span class="badge badge-green">ReplaySubject(3)</span>
+          <span class="subject-tag">Son N değer</span>
+        </div>
+        <p class="subject-desc">Son N değeri tamponlar. Geç abone tampondakileri hemen alır.</p>
+        <button class="btn btn-primary" (click)="runReplayDemo()">Demo Çalıştır</button>
+        <div class="output-box output-sm">
+          @if (!replayLogs().length) {
+            <span class="output-empty">Butona tıkla...</span>
+          }
+          @for (line of replayLogs(); track $index) {
+            <div class="output-line output-info">{{ line }}</div>
+          }
+        </div>
+      </div>
+
+      <!-- AsyncSubject -->
+      <div class="subject-panel">
+        <div class="subject-head">
+          <span class="badge badge-yellow">AsyncSubject</span>
+          <span class="subject-tag">complete() sonrası son</span>
+        </div>
+        <p class="subject-desc">Yalnızca complete() çağrıldığında son değeri iletir. Promise gibi.</p>
+        <button class="btn btn-primary" (click)="runAsyncSubjectDemo()">Demo Çalıştır</button>
+        <div class="output-box output-sm">
+          @if (!asyncLogs().length) {
+            <span class="output-empty">Butona tıkla...</span>
+          }
+          @for (line of asyncLogs(); track $index) {
+            <div class="output-line output-info">{{ line }}</div>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ MID ══════════════════════════════════════════════════════════════ -->
+  <div class="level-header level-mid">
+    <span class="level-badge">Mid</span>
+    <span>shareReplay · exhaustMap · retry · takeUntilDestroyed</span>
+  </div>
+
+  <!-- shareReplay -->
+  <section class="demo-card">
+    <h2 class="section-title">shareReplay(1) — HTTP çağrısını tekrarlama</h2>
+    <p class="section-desc">
+      Aynı Observable'a birden fazla abone olunduğunda her biri ayrı HTTP isteği tetikler.
+      <code>shareReplay(1)</code> ile tek istek yapılır, sonuç cache'lenir.
+    </p>
+    <pre class="code-snippet" [textContent]="snippetShareReplay"></pre>
+    <div class="btn-row">
+      <button class="btn btn-danger" (click)="runWithoutShareReplay()">shareReplay YOK (2 istek)</button>
+      <button class="btn btn-primary" (click)="runWithShareReplay()">shareReplay(1) VAR (1 istek)</button>
+    </div>
+    <div class="output-box">
+      @if (!shareReplayLogs().length) {
+        <span class="output-empty">Bir buton seç...</span>
+      }
+      @for (line of shareReplayLogs(); track $index) {
+        <div [class]="line.startsWith('→') ? 'output-line output-time' : 'output-line output-info'">{{ line }}</div>
+      }
+    </div>
+    <p class="hint-text">💡 Tarayıcı Network sekmesini aç — shareReplay YOK durumunda 2 ayrı istek görürsün.</p>
+  </section>
+
+  <!-- exhaustMap -->
+  <section class="demo-card">
+    <h2 class="section-title">exhaustMap — Meşgulken yeni isteği yoksay</h2>
+    <p class="section-desc">
+      Form submit gibi durumlarda: kullanıcı hızlı tıklarsa sadece ilk istek çalışır,
+      istek tamamlanana kadar yenileri <strong>sessizce yoksayılır</strong>.
+    </p>
+    <pre class="code-snippet" [textContent]="snippetExhaustMap"></pre>
+    <div class="btn-row">
+      <button class="btn btn-primary" (click)="clickExhaust()">
+        @if (exhaustLoading()) { ⏳ Meşgul... } @else { Hızlıca Tıkla! } </button>
+    </div>
+    <div class="output-box">
+      @if (!exhaustLogs().length) {
+        <span class="output-empty">Butona birkaç kez hızlıca tıkla...</span>
+      }
+      @for (line of exhaustLogs(); track $index) {
+        <div [class]="line.startsWith('⚡') ? 'output-line output-time' : line.startsWith('✓') ? 'output-line' : 'output-line output-info'">{{ line }}</div>
+      }
+    </div>
+    <p class="hint-text">💡 ⚡ satırları yoksayılan tıklamaları gösterir. switchMap kullansaydık önceki iptal edilirdi.</p>
+  </section>
+
+  <!-- retry -->
+  <section class="demo-card">
+    <h2 class="section-title">retry() — Hata sonrası otomatik tekrar</h2>
+    <p class="section-desc">
+      <code>retry(n)</code> ile N kez tekrar dener. <code>defer()</code> ile birlikte
+      her deneme için taze bir Observable üretilir.
+    </p>
+    <pre class="code-snippet" [textContent]="snippetRetry"></pre>
+    <button class="btn btn-primary" (click)="runRetryDemo()" [disabled]="retryLoading()">
+      @if (retryLoading()) { ⏳ Deneniyor... } @else { retry Demo Çalıştır } </button>
+    <div class="output-box">
+      @if (!retryLogs().length) {
+        <span class="output-empty">Butona tıkla...</span>
+      }
+      @for (line of retryLogs(); track $index) {
+        <div [class]="line.startsWith('✓') ? 'output-line' : line.startsWith('  ✗') ? 'output-line output-danger' : 'output-line output-info'">{{ line }}</div>
+      }
+    </div>
+    <p class="hint-text">💡 İlk 2 deneme simüle hata fırlatır, 3. deneme gerçek HTTP isteği yapar.</p>
+  </section>
+
+  <!-- takeUntilDestroyed -->
+  <section class="demo-card">
+    <h2 class="section-title">takeUntilDestroyed() — Memory leak önleme</h2>
+    <p class="section-desc">
+      <code>subscribe()</code> ile açılan abonelikler kapatılmazsa bileşen destroy
+      olsa da çalışmaya devam eder. Angular 16+ ile gelen modern çözüm.
+    </p>
+    <pre class="code-snippet" [textContent]="snippetTakeUntilDestroyed"></pre>
+    <div class="info-box">
+      <strong>Memory Leak Neden Olur?</strong>
+      <ul class="info-list">
+        <li><code>interval()</code>, <code>fromEvent()</code> gibi sonsuz Observable'lar iptal edilmezse çalışmaya devam eder</li>
+        <li>Bileşen yok edilse bile callback'ler çalışır → null pointer hatası, gereksiz hesaplama</li>
+        <li><code>takeUntilDestroyed</code>, <code>DestroyRef</code> ile entegre — bileşen ömrüne bağlı</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ SENIOR ════════════════════════════════════════════════════════════ -->
+  <div class="level-header level-senior">
+    <span class="level-badge">Senior</span>
+    <span>withLatestFrom · defer · hot vs cold</span>
+  </div>
+
+  <!-- withLatestFrom -->
+  <section class="demo-card">
+    <h2 class="section-title">withLatestFrom — Tetiklemeden değer al</h2>
+    <p class="section-desc">
+      <code>combineLatest</code> her iki kaynak değişince tetikler.
+      <code>withLatestFrom</code> yalnızca sol kaynak (trigger) değişince tetikler,
+      sağ kaynaktan sadece <em>anlık değer</em> alır.
+    </p>
+    <pre class="code-snippet" [textContent]="snippetWithLatestFrom"></pre>
+    <div class="wlf-demo">
+      <div class="counter-display">
+        <span class="badge badge-green">Otomatik sayaç</span>
+        <span class="counter-big">{{ counterSignal() }}</span>
+      </div>
+      <button class="btn btn-primary" (click)="captureCount()">Anlık Değeri Yakala</button>
+    </div>
+    <div class="output-box">
+      @if (!captureLog().length) {
+        <span class="output-empty">Butona bas — sayacın anlık değerini yakala...</span>
+      }
+      @for (line of captureLog(); track $index) {
+        <div class="output-line">{{ line }}</div>
+      }
+    </div>
+    <p class="hint-text">💡 Sayaç her saniye artar ama butona basmadan hiçbir şey tetiklenmez. Butona basınca anlık değer yakalanır.</p>
+  </section>
+
+  <!-- defer() -->
+  <section class="demo-card">
+    <h2 class="section-title">defer() — Lazy Observable fabrikası</h2>
+    <p class="section-desc">
+      Her subscribe'da fabrika fonksiyonu yeniden çalışır. Retry ile mükemmel uyum sağlar.
+      Her deneme taze bir Observable üretir.
+    </p>
+    <pre class="code-snippet" [textContent]="snippetDefer"></pre>
+    <button class="btn btn-primary" (click)="runDeferDemo()" [disabled]="deferLoading()">
+      @if (deferLoading()) { ⏳ Çalışıyor... } @else { defer() Demo Çalıştır } </button>
+    <div class="output-box">
+      @if (!deferLogs().length) {
+        <span class="output-empty">Butona tıkla...</span>
+      }
+      @for (line of deferLogs(); track $index) {
+        <div [class]="line.startsWith('  [') ? 'output-line' : 'output-line output-info'">{{ line }}</div>
+      }
+    </div>
+    <p class="hint-text">💡 İki abone farklı zaman damgaları alır çünkü defer(), her subscribe'da fabrikayı yeniden çalıştırır.</p>
+  </section>
+
+  <!-- Hot vs Cold özet -->
+  <section class="demo-card">
+    <h2 class="section-title">Hot vs Cold Observable — Özet</h2>
+    <div class="hot-cold-table">
+      <div class="hc-header">
+        <span></span>
+        <span class="col-cold">Cold Observable</span>
+        <span class="col-hot">Hot Observable</span>
+      </div>
+      <div class="hc-row">
+        <span class="hc-label">Üretici</span>
+        <span>Her subscribe'da yeni üretici</span>
+        <span>Tek üretici, paylaşılır</span>
+      </div>
+      <div class="hc-row">
+        <span class="hc-label">Geç abone</span>
+        <span>Baştan alır</span>
+        <span>Sadece o andan sonrasını alır</span>
+      </div>
+      <div class="hc-row">
+        <span class="hc-label">Örnekler</span>
+        <span>http.get(), of(), from()</span>
+        <span>Subject, fromEvent(), shareReplay()</span>
+      </div>
+      <div class="hc-row">
+        <span class="hc-label">Cold → Hot</span>
+        <span>—</span>
+        <span>pipe(shareReplay(1)) ile</span>
+      </div>
+    </div>
+  </section>
+</main>

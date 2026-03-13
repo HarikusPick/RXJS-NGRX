@@ -1,0 +1,73 @@
+<main class="page-wrap">
+  <div class="page-header">
+    <h1>RxJS Canlı Arama</h1>
+    <p class="subtitle">
+      valueChanges → debounceTime(300) → distinctUntilChanged() → switchMap(HTTP) → async pipe
+    </p>
+  </div>
+
+  <!-- BehaviorSubject Demo -->
+  <section class="demo-card">
+    <h2 class="section-title">BehaviorSubject — Durum Yönetimi</h2>
+    <p class="section-desc">
+      BehaviorSubject anlık değeri tutar. Yeni abone olunduğunda son değeri hemen alır.
+      <code>asObservable()</code> ile readonly stream'e dönüştürülür.
+    </p>
+    <div class="auth-row">
+      @if (user$ | async; as user) {
+        <span class="badge badge-green">✓ Giriş yapıldı: {{ user.name }}</span>
+        <button class="btn btn-secondary" (click)="logout()">Çıkış Yap</button>
+      } @else {
+        <span class="badge badge-gray">● Giriş yapılmadı</span>
+        <button class="btn btn-primary" (click)="login()" [disabled]="authLoading$ | async">
+          @if (authLoading$ | async) {
+            Yükleniyor...
+          } @else {
+            Giriş Yap (simüle)
+          }
+        </button>
+      }
+    </div>
+    <pre class="code-snippet" [textContent]="snippetBehaviorSubject"></pre>
+  </section>
+
+  <!-- switchMap Search Pipeline -->
+  <section class="demo-card">
+    <h2 class="section-title">switchMap — Canlı Arama Pipeline'ı</h2>
+    <p class="section-desc">
+      Her tuş vuruşunda yeni bir HTTP isteği tetiklenir, <strong>switchMap</strong> önceki isteği
+      iptal eder. <strong>debounceTime</strong> ile 300ms beklenir, gereksiz istek engellenir.
+    </p>
+    <pre class="code-snippet" [textContent]="snippetPipeline"></pre>
+
+    <input
+      [formControl]="searchQuery"
+      placeholder="Ürün ara... (phone, laptop, watch, perfume...)"
+      class="search-input"
+    />
+
+    @if (products$ | async; as vm) {
+      @if (vm.loading) {
+        <div class="loading-row"><div class="spinner"></div><span>Yükleniyor...</span></div>
+      }
+      @if (vm.error) {
+        <div class="error-box">{{ vm.error }}</div>
+      }
+      @if (!vm.loading && !vm.error) {
+        <p class="result-count">{{ vm.total }} ürün bulundu</p>
+        <div class="product-grid">
+          @for (p of vm.products; track p.id) {
+            <article class="product-card">
+              <img [src]="p.thumbnail" [alt]="p.title" loading="lazy" />
+              <div class="product-info">
+                <span class="product-category">{{ p.category }}</span>
+                <h3>{{ p.title }}</h3>
+                <p class="product-price">{{ p.price | currency: 'USD' }}</p>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    }
+  </section>
+</main>
