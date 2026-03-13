@@ -32,7 +32,7 @@ jobs:
         run: npm ci
 
       - name: Build
-        run: npm run build -- --base-href /rxjs-ngrx-lab/
+        run: npm run build -- --base-href /RXJS-NGRX/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
